@@ -4,7 +4,11 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "format": "npx @biomejs/biome format --write",
+    "pages:build": "npx @cloudflare/next-on-pages",
+    "preview": "npm run pages:build && npx wrangler pages dev",
+    "deploy": "npm run pages:build && npx wrangler pages deploy"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.1.1",
@@ -29,6 +33,7 @@
   },
   "devDependencies": {
     "@biomejs/biome": "2.1.2",
+    "@cloudflare/next-on-pages": "1.13.12",
     "@eslint/eslintrc": "^3",
     "@types/node": "^20",
     "@types/react": "^19",

@@ -5,6 +5,8 @@ import { AuthButton } from "@/components/auth-button";
 import { ThemeSwitcher } from "@/components/theme-switcher";
 import { Logo } from "@/components/logo";
 
+export const runtime = "edge";
+
 export default async function Home() {
   const supabase = await createClient();
 

@@ -7,8 +7,10 @@
   },
   "files": {
     "includes": [
-      "**/*.{js,jsx,ts,tsx,json,md,mdx,yml,yaml}",
+      "**/*.{js,jsx,ts,tsx,json,md,mdx,yml,yaml,jsonc}",
       "!**/node_modules/**",
+      "!**/.vercel/**",
+      "!**/.wrangler/**",
       "!**/.next/**"
     ],
     "ignoreUnknown": false
