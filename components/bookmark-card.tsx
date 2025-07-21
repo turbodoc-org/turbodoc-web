@@ -146,8 +146,8 @@ export function BookmarkCard({
   };
 
   return (
-    <Card className="group h-full hover:shadow-lg transition-all duration-200 border border-border hover:border-primary/20 shadow-sm bg-card overflow-hidden">
-      <CardContent className="p-0">
+    <Card className="group h-full hover:shadow-lg transition-all duration-200 border border-border hover:border-primary/20 shadow-sm bg-card overflow-hidden dark:border-gray-400">
+      <CardContent className="p-0 flex flex-col h-full">
         {/* OG Image Header */}
         <div className="relative h-32 sm:h-40 bg-secondary border-b border-border">
           {ogImage && !imageError ? (
@@ -211,7 +211,7 @@ export function BookmarkCard({
           </div>
         </div>
 
-        <div className="p-3 sm:p-4">
+        <div className="p-3 sm:p-4 flex-grow flex flex-col">
           <div className="mb-3">
             <h3 className="font-semibold text-base leading-tight line-clamp-2 text-foreground mb-2">
               {bookmark.title}
@@ -230,12 +230,12 @@ export function BookmarkCard({
           </div>
 
           {tags.length > 0 && (
-            <div className="flex flex-wrap gap-2 mb-3">
+            <div className="flex flex-wrap gap-2">
               {tags.slice(0, 3).map((tag, index) => (
                 <Badge
                   key={index}
                   variant="secondary"
-                  className="text-xs px-2 py-1 bg-warning/10 text-warning-foreground border-warning/20"
+                  className="text-xs px-2 py-1 bg-warning/10 text-warning-foreground border-warning/20 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600"
                 >
                   {tag}
                 </Badge>
@@ -243,7 +243,7 @@ export function BookmarkCard({
               {tags.length > 3 && (
                 <Badge
                   variant="outline"
-                  className="text-xs px-2 py-1 border-border text-muted-foreground"
+                  className="text-xs px-2 py-1 border-border text-muted-foreground dark:border-gray-500 dark:text-gray-400"
                 >
                   +{tags.length - 3} more
                 </Badge>
@@ -252,7 +252,7 @@ export function BookmarkCard({
           )}
         </div>
 
-        <div className="px-3 sm:px-4 py-3 bg-muted/30 border-t border-border">
+        <div className="px-3 sm:px-4 py-3 bg-muted/30 border-t border-border dark:border-gray-500 dark:bg-gray-800 dark:text-gray-300">
           <div className="flex items-center justify-between text-xs">
             <div className="flex items-center gap-1.5 text-muted-foreground">
               <Clock className="h-3 w-3" />
