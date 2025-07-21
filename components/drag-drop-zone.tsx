@@ -153,11 +153,11 @@ export function DragDropZone({ onBookmarkCreated }: DragDropZoneProps) {
     <Card
       ref={dropZoneRef}
       className={`
-        transition-all duration-200 border-2 border-dashed bg-white/40 backdrop-blur-sm
+        transition-all duration-200 border-2 border-dashed bg-background/40 backdrop-blur-sm
         ${
           isDragOver
-            ? "border-amber-400 bg-amber-50/80 shadow-lg scale-105"
-            : "border-yellow-300/60 hover:border-amber-300"
+            ? "border-primary bg-primary/10 shadow-lg scale-105"
+            : "border-border hover:border-primary/50"
         }
         ${isCreating ? "opacity-50" : ""}
       `}
@@ -166,15 +166,15 @@ export function DragDropZone({ onBookmarkCreated }: DragDropZoneProps) {
       onDragOver={handleDragOver}
       onDrop={handleDrop}
     >
-      <CardContent className="p-8">
+      <CardContent className="p-4 sm:p-6 lg:p-8">
         <div className="text-center">
           <div
             className={`
             w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center transition-all duration-200
             ${
               isDragOver
-                ? "bg-amber-400 text-black scale-110"
-                : "bg-amber-100 text-black"
+                ? "bg-primary text-primary-foreground scale-110"
+                : "bg-secondary text-foreground"
             }
           `}
           >
@@ -192,7 +192,7 @@ export function DragDropZone({ onBookmarkCreated }: DragDropZoneProps) {
           <h3
             className={`
             text-lg font-semibold mb-2 transition-colors duration-200
-            ${isDragOver ? "text-black" : "text-black"}
+            text-foreground
           `}
           >
             {isCreating
@@ -202,27 +202,13 @@ export function DragDropZone({ onBookmarkCreated }: DragDropZoneProps) {
                 : "Drag & Drop Links Here"}
           </h3>
 
-          <p className="text-sm text-black/70 mb-4">
+          <p className="text-sm text-muted-foreground mb-4">
             {isCreating
               ? "Please wait while we save your bookmark"
               : isDragOver
                 ? "Release to add this link to your bookmarks"
                 : "Drag any link from your browser or other applications to quickly add it to your bookmarks"}
           </p>
-
-          {!isDragOver && !isCreating && (
-            <div className="text-xs text-black/80">
-              <p className="mb-1">
-                💡 <strong>Tip:</strong> You can drag links from:
-              </p>
-              <ul className="text-left inline-block">
-                <li>• Browser address bar</li>
-                <li>• Other websites</li>
-                <li>• Bookmark bars</li>
-                <li>• Email links</li>
-              </ul>
-            </div>
-          )}
         </div>
       </CardContent>
     </Card>

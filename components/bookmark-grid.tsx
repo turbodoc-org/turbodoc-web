@@ -106,19 +106,19 @@ export function BookmarkGrid() {
 
   return (
     <div className="space-y-8">
-      <div className="flex items-center gap-4">
-        <div className="relative flex-1 max-w-md">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-black" />
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
+        <div className="relative flex-1 sm:max-w-md">
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             placeholder="Search bookmarks..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10 bg-white/60 backdrop-blur-sm border-yellow-200 focus:border-amber-400 focus:ring-amber-200/50 text-black placeholder:text-black/70"
+            className="pl-10 bg-background/60 backdrop-blur-sm border-border focus:border-primary focus:ring-primary/20 text-foreground placeholder:text-muted-foreground"
           />
         </div>
         <Dialog>
           <DialogTrigger asChild>
-            <Button className="bg-gradient-to-r from-amber-400 to-yellow-500 hover:from-amber-500 hover:to-yellow-600 text-black shadow-lg">
+            <Button className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg">
               <Plus className="h-4 w-4 mr-2" />
               Add Bookmark
             </Button>
@@ -167,7 +167,7 @@ export function BookmarkGrid() {
                   disabled={
                     !newBookmark.title || !newBookmark.url || isCreating
                   }
-                  className="bg-gradient-to-r from-amber-400 to-yellow-500 hover:from-amber-500 hover:to-yellow-600 text-black"
+                  className="bg-primary hover:bg-primary/90 text-primary-foreground"
                 >
                   {isCreating ? (
                     <>
@@ -189,20 +189,20 @@ export function BookmarkGrid() {
 
       {filteredBookmarks.length === 0 ? (
         <div className="text-center py-16">
-          <div className="w-20 h-20 bg-gradient-to-br from-amber-100 to-yellow-50 rounded-full flex items-center justify-center mx-auto mb-4 border border-yellow-200">
-            <Search className="h-8 w-8 text-black" />
+          <div className="w-20 h-20 bg-secondary rounded-full flex items-center justify-center mx-auto mb-4 border border-border">
+            <Search className="h-8 w-8 text-primary" />
           </div>
-          <h3 className="text-lg font-semibold mb-2 text-black">
+          <h3 className="text-lg font-semibold mb-2 text-foreground">
             {searchTerm ? "No bookmarks found" : "No bookmarks yet"}
           </h3>
-          <p className="text-black/70 text-sm">
+          <p className="text-muted-foreground text-sm">
             {searchTerm
               ? "Try adjusting your search terms or check the spelling."
               : "Create your first bookmark to get started organizing your links!"}
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-3 sm:gap-4 lg:gap-6">
           {filteredBookmarks.map((bookmark) => (
             <BookmarkCard
               key={bookmark.id}

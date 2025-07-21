@@ -146,10 +146,10 @@ export function BookmarkCard({
   };
 
   return (
-    <Card className="group h-full hover:shadow-xl transition-all duration-200 border border-yellow-200/60 hover:border-amber-300 shadow-sm hover:shadow-amber-500/10 bg-gradient-to-br from-white to-yellow-50/50 overflow-hidden">
+    <Card className="group h-full hover:shadow-lg transition-all duration-200 border border-border hover:border-primary/20 shadow-sm bg-card overflow-hidden">
       <CardContent className="p-0">
         {/* OG Image Header */}
-        <div className="relative h-40 bg-gradient-to-br from-amber-50 to-yellow-100 border-b border-yellow-200">
+        <div className="relative h-32 sm:h-40 bg-secondary border-b border-border">
           {ogImage && !imageError ? (
             <img
               src={ogImage}
@@ -161,12 +161,12 @@ export function BookmarkCard({
             <div className="w-full h-full flex items-center justify-center">
               {imageLoading ? (
                 <div className="animate-pulse">
-                  <ImageIcon className="h-8 w-8 text-black/40" />
+                  <ImageIcon className="h-8 w-8 text-muted-foreground" />
                 </div>
               ) : (
                 <div className="flex flex-col items-center gap-2">
-                  <ImageIcon className="h-8 w-8 text-black/40" />
-                  <span className="text-xs text-black font-medium">
+                  <ImageIcon className="h-8 w-8 text-muted-foreground" />
+                  <span className="text-xs text-muted-foreground font-medium">
                     {getDomain(bookmark.url)}
                   </span>
                 </div>
@@ -181,9 +181,9 @@ export function BookmarkCard({
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="h-8 w-8 p-0 opacity-0 group-hover:opacity-100 transition-opacity bg-white/80 hover:bg-white/90"
+                  className="h-8 w-8 p-0 opacity-0 group-hover:opacity-100 transition-opacity bg-background/80 hover:bg-background/90"
                 >
-                  <MoreVertical className="h-4 w-4 text-black" />
+                  <MoreVertical className="h-4 w-4 text-foreground" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-48">
@@ -211,18 +211,18 @@ export function BookmarkCard({
           </div>
         </div>
 
-        <div className="p-4">
+        <div className="p-3 sm:p-4">
           <div className="mb-3">
-            <h3 className="font-semibold text-base leading-tight line-clamp-2 text-black mb-2">
+            <h3 className="font-semibold text-base leading-tight line-clamp-2 text-foreground mb-2">
               {bookmark.title}
             </h3>
-            <div className="flex items-center gap-2 text-sm text-black/70">
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <Globe className="h-3 w-3 flex-shrink-0" />
               <a
                 href={bookmark.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="hover:text-black hover:underline truncate"
+                className="hover:text-foreground hover:underline truncate"
               >
                 {getDomain(bookmark.url)}
               </a>
@@ -235,7 +235,7 @@ export function BookmarkCard({
                 <Badge
                   key={index}
                   variant="secondary"
-                  className="text-xs px-2 py-1 bg-amber-100 text-black border-amber-200"
+                  className="text-xs px-2 py-1 bg-warning/10 text-warning-foreground border-warning/20"
                 >
                   {tag}
                 </Badge>
@@ -243,7 +243,7 @@ export function BookmarkCard({
               {tags.length > 3 && (
                 <Badge
                   variant="outline"
-                  className="text-xs px-2 py-1 border-amber-300 text-black"
+                  className="text-xs px-2 py-1 border-border text-muted-foreground"
                 >
                   +{tags.length - 3} more
                 </Badge>
@@ -252,9 +252,9 @@ export function BookmarkCard({
           )}
         </div>
 
-        <div className="px-4 py-3 bg-amber-50/50 border-t border-yellow-200">
+        <div className="px-3 sm:px-4 py-3 bg-muted/30 border-t border-border">
           <div className="flex items-center justify-between text-xs">
-            <div className="flex items-center gap-1.5 text-black/70">
+            <div className="flex items-center gap-1.5 text-muted-foreground">
               <Clock className="h-3 w-3" />
               <span>{formatDate(bookmark.time_added)}</span>
             </div>
@@ -262,8 +262,8 @@ export function BookmarkCard({
               variant={bookmark.status === "read" ? "default" : "outline"}
               className={`text-xs px-2 py-0.5 ${
                 bookmark.status === "read"
-                  ? "bg-amber-600 text-white"
-                  : "border-amber-300 text-black"
+                  ? "bg-success text-success-foreground"
+                  : "border-border text-muted-foreground"
               }`}
             >
               {bookmark.status}
