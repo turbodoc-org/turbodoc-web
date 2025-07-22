@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import Link from "next/link";
 
 export const metadata: Metadata = {
   title: "Privacy Policy - Turbodoc",
@@ -34,8 +35,9 @@ export default function PrivacyPolicy() {
               </h2>
               <p className="text-muted-foreground leading-relaxed">
                 Welcome to Turbodoc. This Privacy Policy explains how Classic
-                Apps Co ("we," "us," or "our") collects, uses, and protects your
-                information when you use our Turbodoc application and website at{" "}
+                Apps Co (&quot;we,&quot; &quot;us,&quot; or &quot;our&quot;)
+                collects, uses, and protects your information when you use our
+                Turbodoc application and website at{" "}
                 <a
                   href="https://turbodoc.ai"
                   className="text-primary hover:underline"
@@ -91,7 +93,7 @@ export default function PrivacyPolicy() {
                   Synchronize your bookmarks across different devices and
                   platforms
                 </li>
-                <li>Improve and optimize our application's performance</li>
+                <li>Improve and optimize our application&apos;s performance</li>
               </ul>
             </section>
 
@@ -163,7 +165,8 @@ export default function PrivacyPolicy() {
                 We may update this Privacy Policy from time to time to reflect
                 changes in our practices or for legal and regulatory reasons. We
                 will notify you of any material changes by posting the updated
-                policy on our website and updating the "Last updated" date.
+                policy on our website and updating the &quot;Last updated&quot;
+                date.
               </p>
             </section>
 
@@ -201,12 +204,12 @@ export default function PrivacyPolicy() {
 
         {/* Back to Home */}
         <div className="text-center mt-12">
-          <a
+          <Link
             href="/"
             className="inline-flex items-center px-6 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors font-medium"
           >
             ← Back to Turbodoc
-          </a>
+          </Link>
         </div>
       </div>
     </div>
