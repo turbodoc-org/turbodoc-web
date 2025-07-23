@@ -1,5 +1,10 @@
 import { createClient } from "@/lib/supabase/client";
-import { Bookmark, BookmarkResponse, OgImageResponse } from "./types";
+import {
+  Bookmark,
+  BookmarkResponse,
+  BookmarkSearchResponse,
+  OgImageResponse,
+} from "./types";
 
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_URL || "https://api.turbodoc.ai";
@@ -26,6 +31,34 @@ export async function getBookmarks(): Promise<Bookmark[]> {
   }
 
   const result: BookmarkResponse = await response.json();
+  return result.data;
+}
+
+export async function searchBookmarks(query: string): Promise<Bookmark[]> {
+  const supabase = createClient();
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  if (!session) {
+    throw new Error("No session found");
+  }
+
+  const response = await fetch(
+    `${API_BASE_URL}/v1/bookmarks/search?q=${encodeURIComponent(query)}`,
+    {
+      headers: {
+        Authorization: `Bearer ${session.access_token}`,
+        "Content-Type": "application/json",
+      },
+    },
+  );
+
+  if (!response.ok) {
+    throw new Error("Failed to search bookmarks");
+  }
+
+  const result: BookmarkSearchResponse = await response.json();
   return result.data;
 }
 

@@ -15,6 +15,11 @@ export interface BookmarkResponse {
   data: Bookmark[];
 }
 
+export interface BookmarkSearchResponse {
+  data: Bookmark[];
+  query: string;
+}
+
 export interface OgImageResponse {
   ogImage: string | null;
   title: string | null;

@@ -15,14 +15,19 @@ import {
   DialogTrigger,
 } from "./ui/dialog";
 import { Plus, Search, Loader2 } from "lucide-react";
-import { getBookmarks, createBookmark } from "@/lib/api";
+import { getBookmarks, createBookmark, searchBookmarks } from "@/lib/api";
+import { useDebounce } from "@/lib/hooks/useDebounce";
 
 export function BookmarkGrid() {
   const [bookmarks, setBookmarks] = useState<Bookmark[]>([]);
   const [filteredBookmarks, setFilteredBookmarks] = useState<Bookmark[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isSearching, setIsSearching] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+
+  // Debounce search term with 300ms delay
+  const debouncedSearchTerm = useDebounce(searchTerm, 300);
   const [newBookmark, setNewBookmark] = useState({
     title: "",
     url: "",
@@ -33,20 +38,75 @@ export function BookmarkGrid() {
     loadBookmarks();
   }, []);
 
+  // Handle debounced search
   useEffect(() => {
-    if (!searchTerm) {
-      setFilteredBookmarks(bookmarks);
-    } else {
-      const filtered = bookmarks.filter(
-        (bookmark) =>
-          bookmark.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          bookmark.url.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          (bookmark.tags &&
-            bookmark.tags.toLowerCase().includes(searchTerm.toLowerCase())),
-      );
-      setFilteredBookmarks(filtered);
+    const performSearch = async () => {
+      if (!debouncedSearchTerm.trim()) {
+        // No search term, show all bookmarks
+        setFilteredBookmarks(bookmarks);
+        setIsSearching(false);
+        return;
+      }
+
+      // Short queries (< 3 characters) use client-side filtering
+      if (debouncedSearchTerm.trim().length < 3) {
+        const filtered = bookmarks.filter(
+          (bookmark) =>
+            bookmark.title
+              .toLowerCase()
+              .includes(debouncedSearchTerm.toLowerCase()) ||
+            bookmark.url
+              .toLowerCase()
+              .includes(debouncedSearchTerm.toLowerCase()) ||
+            (bookmark.tags &&
+              bookmark.tags
+                .toLowerCase()
+                .includes(debouncedSearchTerm.toLowerCase())),
+        );
+        setFilteredBookmarks(filtered);
+        setIsSearching(false);
+        return;
+      }
+
+      // Longer queries use server-side search
+      setIsSearching(true);
+      try {
+        const searchResults = await searchBookmarks(debouncedSearchTerm);
+        setFilteredBookmarks(searchResults);
+      } catch (error) {
+        console.error(
+          "Search failed, falling back to client-side filtering:",
+          error,
+        );
+        // Fallback to client-side filtering on error
+        const filtered = bookmarks.filter(
+          (bookmark) =>
+            bookmark.title
+              .toLowerCase()
+              .includes(debouncedSearchTerm.toLowerCase()) ||
+            bookmark.url
+              .toLowerCase()
+              .includes(debouncedSearchTerm.toLowerCase()) ||
+            (bookmark.tags &&
+              bookmark.tags
+                .toLowerCase()
+                .includes(debouncedSearchTerm.toLowerCase())),
+        );
+        setFilteredBookmarks(filtered);
+      } finally {
+        setIsSearching(false);
+      }
+    };
+
+    performSearch();
+  }, [bookmarks, debouncedSearchTerm]);
+
+  // Set searching state when user is typing
+  useEffect(() => {
+    if (searchTerm !== debouncedSearchTerm && searchTerm.trim().length >= 3) {
+      setIsSearching(true);
     }
-  }, [bookmarks, searchTerm]);
+  }, [searchTerm, debouncedSearchTerm]);
 
   const loadBookmarks = async () => {
     try {
@@ -108,7 +168,11 @@ export function BookmarkGrid() {
     <div className="space-y-8">
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
         <div className="relative flex-1 sm:max-w-md">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          {isSearching ? (
+            <Loader2 className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground animate-spin" />
+          ) : (
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          )}
           <Input
             placeholder="Search bookmarks..."
             value={searchTerm}
