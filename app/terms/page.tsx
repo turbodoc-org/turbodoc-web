@@ -34,16 +34,17 @@ export default function TermsOfService() {
                 Introduction
               </h2>
               <p className="text-muted-foreground leading-relaxed">
-                Welcome to Turbodoc. These Terms of Service ("Terms") govern
-                your use of Turbodoc application and website at{" "}
+                Welcome to Turbodoc. These Terms of Service (&quot;Terms&quot;)
+                govern your use of Turbodoc application and website at{" "}
                 <a
                   href="https://turbodoc.ai"
                   className="text-primary hover:underline"
                 >
                   https://turbodoc.ai
                 </a>{" "}
-                operated by Classic Apps Co ("we," "us," or "our"). By using our
-                service, you agree to be bound by these Terms.
+                operated by Classic Apps Co (&quot;we,&quot; &quot;us,&quot; or
+                &quot;our&quot;). By using our service, you agree to be bound by
+                these Terms.
               </p>
             </section>
 
@@ -119,7 +120,9 @@ export default function TermsOfService() {
                 <li>Violating any applicable laws or regulations</li>
                 <li>Infringing on intellectual property rights</li>
                 <li>Attempting to gain unauthorized access to our systems</li>
-                <li>Interfering with the service's operation or security</li>
+                <li>
+                  Interfering with the service&apos;s operation or security
+                </li>
                 <li>Using the service to spam or harass others</li>
               </ul>
             </section>
@@ -215,8 +218,9 @@ export default function TermsOfService() {
                 We may update these Terms from time to time to reflect changes
                 in our service or legal requirements. We will notify you of any
                 material changes by posting the updated Terms on our website and
-                updating the "Last updated" date. Your continued use of the
-                service after changes constitutes acceptance of the new Terms.
+                updating the &quot;Last updated&quot; date. Your continued use
+                of the service after changes constitutes acceptance of the new
+                Terms.
               </p>
             </section>
 
