@@ -37,7 +37,9 @@ export function Logo({
         priority
       />
       {showText && (
-        <span className={cn("font-bold text-black", textSize)}>Turbodoc</span>
+        <span className={cn("font-bold text-black dark:text-white", textSize)}>
+          Turbodoc
+        </span>
       )}
     </div>
   );
