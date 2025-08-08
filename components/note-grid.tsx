@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { Note } from "@/lib/types";
 import { NoteCard } from "./note-card";
 import { Button } from "./ui/button";
@@ -14,19 +15,19 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "./ui/dialog";
-import { Plus, Search, Loader2, Eye, Edit3 } from "lucide-react";
-import ReactMarkdown from "react-markdown";
-import { getNotes, createNote } from "@/lib/api";
+import { Plus, Search, Loader2 } from "lucide-react";
+import { getNotes, createNote, updateNote } from "@/lib/api";
 import { useDebounce } from "@/lib/hooks/useDebounce";
 
 export function NoteGrid() {
+  const router = useRouter();
   const [notes, setNotes] = useState<Note[]>([]);
   const [filteredNotes, setFilteredNotes] = useState<Note[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isCreating, setIsCreating] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
-  const [isReadOnlyMode, setIsReadOnlyMode] = useState(false);
+  const [draftNoteId, setDraftNoteId] = useState<string | null>(null);
 
   // Debounce search term with 300ms delay
   const debouncedSearchTerm = useDebounce(searchTerm, 300);
@@ -35,6 +36,11 @@ export function NoteGrid() {
     content: "",
     tags: "",
   });
+
+  // Debounced values for auto-save in creation
+  const debouncedNewTitle = useDebounce(newNote.title, 800);
+  const debouncedNewContent = useDebounce(newNote.content, 800);
+  const debouncedNewTags = useDebounce(newNote.tags, 800);
 
   useEffect(() => {
     loadNotes();
@@ -59,6 +65,56 @@ export function NoteGrid() {
     setFilteredNotes(filtered);
   }, [notes, debouncedSearchTerm]);
 
+  // Auto-create draft note when user starts typing
+  useEffect(() => {
+    if (!isCreateDialogOpen) return;
+
+    const hasContent = debouncedNewTitle || debouncedNewContent;
+
+    if (hasContent && !draftNoteId) {
+      // Create initial draft
+      const createDraft = async () => {
+        try {
+          const created = await createNote({
+            title: debouncedNewTitle || "Untitled Note",
+            content: debouncedNewContent || "",
+            tags: debouncedNewTags || undefined,
+          });
+          setDraftNoteId(created.id);
+          setNotes([created, ...notes]);
+        } catch (error) {
+          console.error("Failed to create draft note:", error);
+        }
+      };
+      createDraft();
+    } else if (hasContent && draftNoteId) {
+      // Update existing draft
+      const updateDraft = async () => {
+        try {
+          const updated = await updateNote(draftNoteId, {
+            title: debouncedNewTitle || "Untitled Note",
+            content: debouncedNewContent || "",
+            tags: debouncedNewTags || undefined,
+          });
+          // Update the note in our local state
+          setNotes((prev) =>
+            prev.map((note) => (note.id === draftNoteId ? updated : note)),
+          );
+        } catch (error) {
+          console.error("Failed to update draft note:", error);
+        }
+      };
+      updateDraft();
+    }
+  }, [
+    debouncedNewTitle,
+    debouncedNewContent,
+    debouncedNewTags,
+    isCreateDialogOpen,
+    draftNoteId,
+    notes,
+  ]);
+
   const loadNotes = async () => {
     try {
       const data = await getNotes();
@@ -70,18 +126,22 @@ export function NoteGrid() {
     }
   };
 
-  const handleCreateNote = async () => {
+  const handleCreateAndEdit = async () => {
+    if (draftNoteId) {
+      // If we have a draft, just navigate to it
+      router.push(`/notes/${draftNoteId}`);
+      return;
+    }
+
+    // If no draft, create new note and redirect
     setIsCreating(true);
     try {
       const created = await createNote({
-        title: newNote.title || undefined,
-        content: newNote.content || undefined,
+        title: newNote.title || "Untitled Note",
+        content: newNote.content || "",
         tags: newNote.tags || undefined,
       });
-      setNotes([created, ...notes]);
-      setNewNote({ title: "", content: "", tags: "" });
-      setIsCreateDialogOpen(false);
-      setIsReadOnlyMode(false); // Reset readonly mode when closing
+      router.push(`/notes/${created.id}`);
     } catch (error) {
       console.error("Failed to create note:", error);
     } finally {
@@ -92,14 +152,9 @@ export function NoteGrid() {
   const handleCreateDialogChange = (open: boolean) => {
     setIsCreateDialogOpen(open);
     if (!open) {
-      setIsReadOnlyMode(false); // Reset readonly mode when closing
+      // Reset draft state when closing
+      setDraftNoteId(null);
     }
-  };
-
-  const handleUpdateNote = (updatedNote: Note) => {
-    setNotes(
-      notes.map((note) => (note.id === updatedNote.id ? updatedNote : note)),
-    );
   };
 
   const handleDeleteNote = (id: string) => {
@@ -153,193 +208,48 @@ export function NoteGrid() {
                 />
               </div>
               <div>
-                <div className="flex items-center justify-between mb-2">
-                  <Label htmlFor="new-content">
-                    Content (Markdown supported)
-                  </Label>
-                  <div className="flex items-center gap-2">
-                    <Button
-                      type="button"
-                      variant={isReadOnlyMode ? "outline" : "default"}
-                      size="sm"
-                      onClick={() => setIsReadOnlyMode(false)}
-                      className="h-7 px-2"
-                    >
-                      <Edit3 className="h-3 w-3 mr-1" />
-                      Edit
-                    </Button>
-                    <Button
-                      type="button"
-                      variant={isReadOnlyMode ? "default" : "outline"}
-                      size="sm"
-                      onClick={() => setIsReadOnlyMode(true)}
-                      className="h-7 px-2"
-                    >
-                      <Eye className="h-3 w-3 mr-1" />
-                      Preview
-                    </Button>
-                  </div>
-                </div>
-                <div
-                  className={`grid gap-4 mt-2 ${isReadOnlyMode ? "grid-cols-1" : "grid-cols-1 lg:grid-cols-2"}`}
-                >
-                  {/* Editor */}
-                  {!isReadOnlyMode && (
-                    <div className="space-y-2">
-                      <div className="text-xs text-muted-foreground font-medium">
-                        Editor
-                      </div>
-                      <Textarea
-                        id="new-content"
-                        value={newNote.content}
-                        onChange={(e) =>
-                          setNewNote({ ...newNote, content: e.target.value })
-                        }
-                        placeholder="Start writing your note... Markdown is supported!"
-                        className="min-h-64 font-mono text-sm resize-none"
-                      />
-                    </div>
-                  )}
-
-                  {/* Preview */}
-                  <div className="space-y-2">
-                    <div className="text-xs text-muted-foreground font-medium">
-                      {isReadOnlyMode ? "Note Content" : "Preview"}
-                    </div>
-                    <div className="border rounded-md p-3 min-h-64 overflow-y-auto bg-muted/30">
-                      {newNote.content ? (
-                        <div className="prose prose-sm max-w-none dark:prose-invert">
-                          <ReactMarkdown
-                            components={{
-                              h1: ({ children }) => (
-                                <h1 className="text-lg font-bold mb-2 text-foreground">
-                                  {children}
-                                </h1>
-                              ),
-                              h2: ({ children }) => (
-                                <h2 className="text-base font-bold mb-2 text-foreground">
-                                  {children}
-                                </h2>
-                              ),
-                              h3: ({ children }) => (
-                                <h3 className="text-sm font-bold mb-1 text-foreground">
-                                  {children}
-                                </h3>
-                              ),
-                              h4: ({ children }) => (
-                                <h4 className="text-sm font-semibold mb-1 text-foreground">
-                                  {children}
-                                </h4>
-                              ),
-                              h5: ({ children }) => (
-                                <h5 className="text-sm font-semibold mb-1 text-foreground">
-                                  {children}
-                                </h5>
-                              ),
-                              h6: ({ children }) => (
-                                <h6 className="text-sm font-medium mb-1 text-foreground">
-                                  {children}
-                                </h6>
-                              ),
-                              p: ({ children }) => (
-                                <p className="text-sm mb-2 text-foreground leading-relaxed">
-                                  {children}
-                                </p>
-                              ),
-                              strong: ({ children }) => (
-                                <strong className="font-semibold text-foreground">
-                                  {children}
-                                </strong>
-                              ),
-                              em: ({ children }) => (
-                                <em className="italic text-foreground">
-                                  {children}
-                                </em>
-                              ),
-                              code: ({ children }) => (
-                                <code className="bg-muted px-1.5 py-0.5 rounded text-xs font-mono text-foreground border">
-                                  {children}
-                                </code>
-                              ),
-                              pre: ({ children }) => (
-                                <pre className="bg-muted p-3 rounded text-xs font-mono mb-2 overflow-x-auto border">
-                                  {children}
-                                </pre>
-                              ),
-                              ul: ({ children }) => (
-                                <ul className="list-disc list-inside mb-2 text-sm space-y-1">
-                                  {children}
-                                </ul>
-                              ),
-                              ol: ({ children }) => (
-                                <ol className="list-decimal list-inside mb-2 text-sm space-y-1">
-                                  {children}
-                                </ol>
-                              ),
-                              li: ({ children }) => (
-                                <li className="text-foreground">{children}</li>
-                              ),
-                              a: ({ children, href }) => (
-                                <a
-                                  href={href}
-                                  className="text-primary underline hover:text-primary/80"
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                >
-                                  {children}
-                                </a>
-                              ),
-                              blockquote: ({ children }) => (
-                                <blockquote className="border-l-4 border-primary pl-4 italic text-muted-foreground mb-2">
-                                  {children}
-                                </blockquote>
-                              ),
-                            }}
-                          >
-                            {newNote.content}
-                          </ReactMarkdown>
-                        </div>
-                      ) : (
-                        <div className="text-muted-foreground text-sm flex items-center justify-center h-full">
-                          Preview will appear as you type...
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div>
-                <Label htmlFor="new-tags">Tags (pipe-separated)</Label>
-                <Input
-                  id="new-tags"
-                  value={newNote.tags}
+                <Label htmlFor="new-content">Content</Label>
+                <Textarea
+                  id="new-content"
+                  value={newNote.content}
                   onChange={(e) =>
-                    setNewNote({ ...newNote, tags: e.target.value })
+                    setNewNote({ ...newNote, content: e.target.value })
                   }
-                  placeholder="work | ideas | personal"
+                  placeholder="Start writing your note..."
+                  className="min-h-[200px] mt-2"
+                  spellCheck={true}
                 />
               </div>
-              <div className="flex justify-end gap-2">
-                <Button
-                  variant="outline"
-                  onClick={() => handleCreateDialogChange(false)}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  onClick={handleCreateNote}
-                  disabled={isCreating}
-                  className="bg-primary hover:bg-primary/90 text-primary-foreground"
-                >
-                  {isCreating ? (
-                    <>
-                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                      Creating...
-                    </>
-                  ) : (
-                    "Create Note"
-                  )}
-                </Button>
+              <div className="flex justify-between items-center">
+                <p className="text-sm text-muted-foreground">
+                  Start typing to create your note. It will be saved
+                  automatically.
+                </p>
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      setNewNote({ title: "", content: "", tags: "" });
+                      handleCreateDialogChange(false);
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    onClick={handleCreateAndEdit}
+                    disabled={isCreating}
+                    className="bg-primary hover:bg-primary/90 text-primary-foreground"
+                  >
+                    {isCreating ? (
+                      <>
+                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                        Creating...
+                      </>
+                    ) : (
+                      "Create & Edit"
+                    )}
+                  </Button>
+                </div>
               </div>
             </div>
           </DialogContent>
@@ -363,12 +273,7 @@ export function NoteGrid() {
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
           {filteredNotes.map((note) => (
-            <NoteCard
-              key={note.id}
-              note={note}
-              onUpdate={handleUpdateNote}
-              onDelete={handleDeleteNote}
-            />
+            <NoteCard key={note.id} note={note} onDelete={handleDeleteNote} />
           ))}
         </div>
       )}
